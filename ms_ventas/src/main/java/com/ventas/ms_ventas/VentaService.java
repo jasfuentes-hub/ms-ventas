@@ -28,21 +28,21 @@ public class VentaService {
     public BigDecimal getGananciasDiarias(LocalDate fecha) {
         return listaVentas.stream()
                 .filter(venta -> venta.getFecha().toLocalDate().isEqual(fecha))
-                .map(Venta::getGananciaTotal)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+                .map(venta -> venta.getGananciaTotal())
+                .reduce(BigDecimal.ZERO, (total, ganancia) -> total.add(ganancia));
     }
 
     public BigDecimal getGananciasMensuales(int mes, int anio) {
         return listaVentas.stream()
                 .filter(venta -> venta.getFecha().getMonthValue() == mes && venta.getFecha().getYear() == anio)
-                .map(Venta::getGananciaTotal)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+                .map(venta -> venta.getGananciaTotal())
+                .reduce(BigDecimal.ZERO, (total, ganancia) -> total.add(ganancia));
     }
 
     public BigDecimal getGananciasAnuales(int anio) {
         return listaVentas.stream()
                 .filter(venta -> venta.getFecha().getYear() == anio)
-                .map(Venta::getGananciaTotal)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+                .map(venta -> venta.getGananciaTotal())
+                .reduce(BigDecimal.ZERO, (total, ganancia) -> total.add(ganancia));
     }
 }
