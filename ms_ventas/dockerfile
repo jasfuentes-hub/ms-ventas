@@ -1,0 +1,25 @@
+# Usa una imagen base con Java 24 (necesario para la versión de clase 68.0)
+FROM eclipse-temurin:24-jre-alpine
+
+# Establecemos el directorio de trabajo dentro del contenedor
+WORKDIR /app
+
+
+# Establecemos el directorio donde se montará la wallet de Oracle dentro del contenedor
+ENV ORACLE_DIR=/app/SQL_Credentials
+
+
+# Crea un directorio en el contenedor para la wallet
+RUN mkdir -p $ORACLE_DIR
+
+
+# Copia los archivos de la wallet (tnsnames.ora, sqlnet.ora, etc.) al contenedor
+COPY resources/ $ORACLE_DIR
+
+
+# Copiamos el JAR generado en el contenedor
+COPY target/ms_ventas-0.0.1-SNAPSHOT.jar app.jar
+# Exponemos el puerto 8080 (el que usa Spring Boot por defecto)
+EXPOSE 8080
+# Comando para ejecutar la aplicación cuando el contenedor arranque
+ENTRYPOINT ["java", "-jar", "app.jar"]
