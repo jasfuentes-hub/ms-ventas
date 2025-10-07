@@ -76,8 +76,12 @@ public class VentaControllerTest {
         mockMvc.perform(get("/ventas")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk()) // 200 OK
-                .andExpect(jsonPath("$.size()").value(1))
-                .andExpect(jsonPath("$[0].cliente").value("Client A"));
+                // Aserción CORREGIDA 1: El contenido debe ser HATEOAS (hal+json)
+                .andExpect(content().contentType("application/hal+json"))
+                // Aserción CORREGIDA 2: La lista de ventas está bajo la ruta '._embedded.ventaList'
+                .andExpect(jsonPath("$._embedded.ventaList.length()").value(1))
+                // Aserción CORREGIDA 3: Acceder al cliente a través de la ruta HATEOAS
+                .andExpect(jsonPath("$._embedded.ventaList[0].cliente").value("Client A"));
         
         verify(ventaService, times(1)).listarTodas();
     }

@@ -38,6 +38,8 @@ public class VentaController {
         List<EntityModel<Venta>> ventaModels = ventas.stream()
                 .map(venta -> EntityModel.of(venta,
                         // Enlace 'self' del recurso individual para navegar a /ventas/{id}
+                        // NOTA: Para evitar el error de CGLIB/Optional en los tests,
+                        // llamamos al método buscarVentaPorId que ahora retorna ResponseEntity.
                         linkTo(methodOn(VentaController.class).buscarVentaPorId(venta.getId())).withSelfRel()
                 ))
                 .collect(Collectors.toList());
@@ -53,10 +55,13 @@ public class VentaController {
         return ResponseEntity.ok(collectionModel);
     }
 
-    // Método GET para buscar una venta por su ID (SIMPLE, SIN HATEOAS)
+    // Método GET para buscar una venta por su ID (REFRACTORIZADO para evitar problemas de CGLIB/Optional con HATEOAS)
     @GetMapping("/{id}")
-    public Optional<Venta> buscarVentaPorId(@PathVariable int id) {
-        return ventaService.buscarPorId(id);
+    public ResponseEntity<Venta> buscarVentaPorId(@PathVariable int id) {
+        Optional<Venta> venta = ventaService.buscarPorId(id);
+        // Si existe, devuelve 200 OK con el cuerpo, si no, devuelve 404 Not Found.
+        return venta.map(ResponseEntity::ok)
+                    .orElse(ResponseEntity.notFound().build());
     }
 
     // Método POST para guardar una nueva venta (SIMPLE, SIN HATEOAS)
